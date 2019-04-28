@@ -2,18 +2,16 @@ package ch.mlz.mtrack;
 
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController()
+@RequestMapping("mtrack")
 public class HealthCheck {
-    @GetMapping("state/health")
+
+    @GetMapping("health")
     public String healthCheck(){
-        return "TODO";
+        return "All fine";
     }
 
-    @GetMapping("/ping")
-        public String ping(){
-            return "OK..."
-        }
-    }
 }

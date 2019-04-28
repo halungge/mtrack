@@ -21,17 +21,25 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: "com.palantir.docker"
 
 group 'ch.mlz.mtrack'
-version '1.0-SNAPSHOT'
+version '0.1.0-SNAPSHOT'
 
 
 repositories {
     mavenCentral()
 }
 
+
+
+// set to true if you want to generate the normal (not only boot jar) as well
+jar {
+    enabled = false
+}
+
+
+
 bootJar {
     classifier = 'boot'
-    baseName = 'mlz-mtrack'
-    version =  '0.1.0'
+    baseName = 'mtrack'
 }
 
 sourceCompatibility = 11.0
@@ -54,3 +62,15 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
 }
+
+def dockerContext = "./docker"
+def appPath= "jars"
+
+task copyJar(type: Copy){
+    println(" copying $bootJar.archivePath to docker context")
+    from file("$bootJar.archivePath")
+
+    into file("$dockerContext/$appPath")
+}
+
+build.finalizedBy(copyJar)

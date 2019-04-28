@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  mtrack:
+    container_name: mtrack
+    build:
+      context: ./docker
+      dockerfile: ./Dockerfile
+    image: mtrack:latest
+    ports:
+      - "127.0.0.1:7080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/mtrack/health"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
