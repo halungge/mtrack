@@ -1,76 +1,43 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.1.4.RELEASE")
-        classpath "gradle.plugin.com.palantir.gradle.docker:gradle-docker:0.22.1"
-    }
+plugins {
+	id 'org.springframework.boot' version '2.3.0.BUILD-SNAPSHOT'
+	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+	id 'java'
 }
 
+group = 'ch.mlz'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '14'
 
-
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-apply plugin: "com.palantir.docker"
-
-group 'ch.mlz.mtrack'
-version '0.1.0-SNAPSHOT'
-
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
 
 repositories {
-    mavenCentral()
-}
-
-
-
-// set to true if you want to generate the normal (not only boot jar) as well
-jar {
-    enabled = false
-}
-
-
-
-bootJar {
-    classifier = 'boot'
-    baseName = 'mtrack'
-}
-
-sourceCompatibility = 11.0
-
-
-test {
-    useJUnitPlatform()
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+	maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencies {
-    compile("org.springframework.boot:spring-boot-starter-web") {
-        exclude module: "spring-boot-starter-tomcat"
-    }
-    compile "org.eclipse.jetty:jetty-webapp:9.+"
-    compile "org.eclipse.jetty:jetty-jsp:9.+"
-
-    testCompile("org.springframework.boot:spring-boot-starter-test")
-
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'org.springframework.boot:spring-boot-starter-jersey'
+	implementation 'org.springframework.boot:spring-boot-starter-rsocket'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.liquibase:liquibase-core'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'io.r2dbc:r2dbc-postgresql'
+	runtimeOnly 'org.hsqldb:hsqldb'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'io.projectreactor:reactor-test'
 }
 
-def dockerContext = "./docker"
-def appPath= "jars"
-
-task copyJar(type: Copy){
-    println(" copying $bootJar.archivePath to docker context")
-    from file("$bootJar.archivePath")
-
-    into file("$dockerContext/$appPath")
+test {
+	useJUnitPlatform()
 }
-
-build.finalizedBy(copyJar)
